@@ -28,7 +28,7 @@ for x in range(10):
 
     date = driver.find_element(by=By.CSS_SELECTOR, value=query + " td:nth-of-type(8) div")
     date = date.get_attribute("blurred-text")
-    if (abs(datetime.strptime(date, "%Y-%m-%d") - datetime.now()) > timedelta(days=30)):
+    if (abs(datetime.strptime(date, "%Y-%m-%d") - datetime.now()) > timedelta(days=3)):
          continue
     
     ticker = driver.find_element(by=By.CSS_SELECTOR, value=query + " td div")
@@ -45,12 +45,13 @@ for el in eligible:
             owned = True
 
     if not owned:
-        market_order_data = MarketOrderRequest(
+        trailing_stop_data = TrailingStopOrderRequest(
             symbol = el,
             notional = spending,
             side = OrderSide.SELL,
-            time_in_force = TimeInForce.GTC
+            time_in_force = TimeInForce.GTC, 
+            trail_percent = 2.5
         )
-        trading_client.submit_order(market_order_data)
+        trading_client.submit_order(order_data=trailing_stop_data)
 
 driver.quit()
